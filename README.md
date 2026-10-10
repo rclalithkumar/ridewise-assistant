@@ -14,14 +14,20 @@ An evidence-grounded AI support assistant for a fictional electric vehicle renta
 - New-conversation controls.
 - Local environment configuration for API credentials.
 
-## Architecture
+## System Architecture
 
-1. **Streamlit UI:** Role selection, chat, and session controls.
-2. **Session handling:** Validates customer IDs and initializes the selected role.
-3. **SQLite retrieval:** Uses parameterized SQL to retrieve relevant operational records.
-4. **Policy retrieval:** Ranks passages using keyword overlap from approved policy sources.
-5. **NeoStats LLM:** Generates answers using retrieved evidence.
-6. **Evidence display:** Shows database evidence and relevant policy passages.
+The following diagram illustrates the main components and data flow of RideWise AI Assistant.
+
+![RideWise AI Assistant System Architecture](architecture.png)
+
+### Architecture Components
+
+1. **Streamlit UI:** Provides role selection, chat, and session controls.
+2. **Session Handling:** Validates customer IDs and initializes the selected role.
+3. **SQLite Retrieval:** Uses parameterized SQL queries to retrieve relevant operational records.
+4. **Policy Retrieval:** Retrieves relevant passages from approved policy PDFs and verified annexure text using keyword overlap.
+5. **NeoStats LLM:** Generates responses grounded in the retrieved evidence.
+6. **Evidence Display:** Presents supporting database information and relevant policy passages.
 
 ## Technology stack
 
