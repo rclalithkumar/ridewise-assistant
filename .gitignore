@@ -1,5 +1,26 @@
+
+# Environment variables and secrets
 .env
-.venv/
-__pycache__/
-*.pyc
+.env.*
+!.env.example
 .streamlit/secrets.toml
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Local challenge data
+ridewise.db
+
+# Local backups
+app_backup_before_ui_auth.py
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Temporary development backups
+app_before_*.py

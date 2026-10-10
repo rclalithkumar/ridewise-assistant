@@ -1,129 +1,72 @@
-\# RideWise AI Assistant — Engineering Decisions
+﻿# RideWise AI Assistant — Engineering Decisions
 
+## 1. Three Important Design Decisions
 
+### Decision 1: Use SQLite for structured rental data
 
-\## 1. Three Important Design Decisions
+**Decision:** Retrieve relevant booking and payment records using SQL queries with parameters.
 
+**Why:** Structured records need accurate filtering. Parameterized queries help prevent SQL injection, and customer-scoped retrieval helps protect customer data.
 
+**Alternative rejected:** Asking the LLM to answer directly from the entire database, which would weaken record-level control and reliability.
 
-\### Decision 1: Use SQLite for structured rental data
+### Decision 2: Combine database retrieval with policy retrieval
 
+**Decision:** Use SQLite for operational records and keyword-overlap retrieval from approved policy PDFs, supplemented by verified text for scanned annexures.
 
+**Why:** Booking and payment questions require exact records, while policy questions require relevant clauses and traceable sources.
 
-\*\*Decision:\*\* Retrieve customer, booking, payment, vehicle, and damage records using SQL queries with parameters.
+**Alternative rejected:** Searching every PDF indiscriminately or relying only on the LLM's pretrained knowledge.
 
+### Decision 3: Use the supplied NeoStats-hosted LLM
 
+**Decision:** Use the authorized OpenAI-compatible endpoint and load credentials from local environment variables.
 
-\*\*Why:\*\* These records have a structured schema and require accurate filtering. Parameterized queries help prevent SQL injection, while customer-scoped retrieval reduces unauthorized data exposure.
+**Why:** This follows the hackathon requirements without introducing an unrelated model provider.
 
+**Alternative rejected:** Switching to another hosted model or adding unnecessary infrastructure.
 
+## 2. Development Failures and Resolutions
 
-\*\*Alternative rejected:\*\* Asking the LLM to answer directly from the entire database. This would provide weaker access control and less reliable record-level answers.
+### Policy retrieval regular-expression error
 
+**Problem:** An incorrectly escaped regular-expression pattern caused an unterminated character-set error.
 
+**Resolution:** Corrected the pattern and checked Python syntax.
 
-\### Decision 2: Combine SQL retrieval with policy document retrieval
+### Unrelated PDF retrieval risk
 
+**Problem:** Searching every PDF could mistakenly treat the hackathon use-case document as an official policy source.
 
+**Resolution:** Restricted retrieval to the five approved policy PDFs and handled verified scanned-annexure text separately.
 
-\*\*Decision:\*\* Use SQLite for transactional records and retrieval from an explicit allowlist of official policy PDFs, supplemented by verified text for scanned annexures.
+### Unsupported answers
 
+**Problem:** The LLM could make claims beyond the retrieved evidence.
 
+**Resolution:** Added evidence-grounding instructions and manually tested unsupported battery-health claims, refund guarantees, and requests for private contact information. These manual tests passed during development.
 
-\*\*Why:\*\* Database questions require exact records, while policy questions require relevant clauses and citations. Explicit source selection prevents unrelated documents from being treated as official policy evidence.
+### Role selection and customer privacy
 
+**Problem:** The session flow needed to support both Customer and Support Agent evaluation without password-based login.
 
+**Resolution:** Added role selection, customer ID validation, and a new-conversation flow. Customer privacy, Support Agent access, and new-conversation behavior passed manual functional checks. This demonstration is not production-grade authentication.
 
-\*\*Alternative rejected:\*\* Searching every PDF in the folder or relying only on the LLM's pretrained knowledge.
+## 3. What I Would Improve With One More Week
 
+1. **Automated testing:** Add repeatable tests for customer isolation, booking retrieval, policy version selection, and citation correctness.
+2. **Authorization hardening:** Enforce and test role permissions independently of LLM prompt instructions.
+3. **Retrieval evaluation:** Create a test set to measure evidence relevance, citation accuracy, and unsupported-answer rates.
+4. **Policy version handling:** Test the July 1, 2026 cutoff and verify that the applicable policy is selected using the correct booking date.
+5. **Observability:** Improve error handling and latency measurement while avoiding API keys and unnecessary customer data in logs.
+6. **Production readiness:** Review authentication, secret management, audit requirements, and data retention before handling real customer information.
 
+## 4. Known Limitations
 
-\### Decision 3: Use the supplied NeoStats-hosted LLM
-
-
-
-\*\*Decision:\*\* Call the provided OpenAI-compatible endpoint using the hackathon's configured model and environment variables.
-
-
-
-\*\*Why:\*\* This follows the challenge requirements and avoids introducing an unrelated external model provider.
-
-
-
-\*\*Alternative rejected:\*\* Switching to a different hosted model or adding unnecessary infrastructure.
-
-
-
-\## 2. Development Failures and Resolutions
-
-
-
-\### Policy retrieval regex error
-
-
-
-\*\*Problem:\*\* A regular-expression pattern contained incorrectly escaped backslashes, causing an unterminated character-set error.
-
-
-
-\*\*Resolution:\*\* Corrected the raw-string patterns used to split source sections and extract filename/page citations, then checked Python syntax.
-
-
-
-\### Unrelated PDF retrieval risk
-
-
-
-\*\*Problem:\*\* Searching every PDF in the policy folder could include the hackathon use-case document as if it were an official policy.
-
-
-
-\*\*Resolution:\*\* Restricted retrieval to the five official policy PDFs and included a separate verified transcription of the scanned annexures.
-
-
-
-\### Unsupported answers
-
-
-
-\*\*Problem:\*\* The LLM could potentially make claims beyond the retrieved evidence.
-
-
-
-\*\*Resolution:\*\* Added evidence-grounding instructions and tested unsupported battery-health claims, refund guarantees, and requests for private contact information. The three manual tests passed during development.
-
-
-
-\## 3. What I Would Improve With One More Week
-
-
-
-1\. \*\*Automated testing:\*\* Add repeatable tests for customer isolation, booking retrieval, policy version selection, and citation correctness.
-
-2\. \*\*Authorization hardening:\*\* Enforce support-agent permissions in application logic and test every data-access path independently of the LLM prompt.
-
-3\. \*\*Retrieval evaluation:\*\* Build a curated question-and-answer test set to measure retrieval relevance, citation accuracy, and unsupported-answer rates.
-
-4\. \*\*Policy version handling:\*\* Add explicit tests around the July 1, 2026 cutoff and ensure booking creation time, rather than cancellation time, determines the applicable policy.
-
-5\. \*\*Observability and reliability:\*\* Improve error handling, latency measurement, and safe logging without recording API keys or unnecessary customer information.
-
-6\. \*\*Production readiness:\*\* Review authentication, secret management, audit requirements, and data retention before using real customer information.
-
-
-
-\## 4. Known Limitations
-
-
-
-\- Retrieval may miss relevant evidence if a question uses unexpected terminology.
-
-\- Scanned-document transcriptions require verification against the original policy pages.
-
-\- Prompt instructions reduce hallucination risk but cannot guarantee that every LLM response is correct.
-
-\- The prototype requires further security, authorization, and reliability testing before production deployment.
-
-
+- Keyword-overlap retrieval can miss relevant evidence when questions use unexpected terminology.
+- Scanned-document transcriptions require verification against original policy pages.
+- Prompt instructions reduce hallucination risk but cannot guarantee correct answers.
+- Role selection and customer ID validation do not replace production-grade authentication and authorization.
+- The prototype requires further security, reliability, and retrieval testing before production deployment.
 
 The priorities are correctness, privacy, evidence traceability, and explainability.

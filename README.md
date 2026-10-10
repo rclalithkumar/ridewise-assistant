@@ -1,155 +1,104 @@
-\# RideWise AI Assistant
+﻿# RideWise AI Assistant
 
+An evidence-grounded AI support assistant for a fictional electric vehicle rental service. It combines SQLite records, approved policy documents, and the NeoStats-hosted LLM to answer questions using retrieved evidence.
 
+## Features
 
-An evidence-grounded customer support assistant for a fictional electric vehicle rental service. It combines structured rental records, official policy documents, and a NeoStats-hosted large language model (LLM) to answer customer questions.
+- Streamlit chat interface with Customer and Support Agent roles.
+- Customer ID validation against the supplied database.
+- Customer-scoped booking and payment retrieval.
+- Support Agent access to operational information.
+- Keyword-overlap retrieval from approved policy PDFs and verified scanned-annexure text.
+- Evidence-grounded LLM responses with policy filename and page citations where available.
+- Explicit handling of missing evidence and unsupported claims.
+- New-conversation controls.
+- Local environment configuration for API credentials.
 
+## Architecture
 
+1. **Streamlit UI:** Role selection, chat, and session controls.
+2. **Session handling:** Validates customer IDs and initializes the selected role.
+3. **SQLite retrieval:** Uses parameterized SQL to retrieve relevant operational records.
+4. **Policy retrieval:** Ranks passages using keyword overlap from approved policy sources.
+5. **NeoStats LLM:** Generates answers using retrieved evidence.
+6. **Evidence display:** Shows database evidence and relevant policy passages.
 
-\## Features
+## Technology stack
 
+- Python 3.11
+- Streamlit
+- SQLite
+- PyMuPDF
+- OpenAI-compatible Python client
+- python-dotenv
+- NeoStats-hosted LLM endpoint
 
+## Requirements
 
-\- Streamlit chat interface with Customer and Support Agent roles.
+- Python 3.11 recommended
+- Authorized access to the NeoStats hackathon LLM endpoint
+- The organizer-provided `ridewise.db`
+- The approved policy documents in their expected locations
 
-\- SQLite retrieval for customer, booking, payment, vehicle, and damage records.
+## Local setup
 
-\- Policy retrieval from the approved rental and policy documents.
+Open PowerShell in the project directory.
 
-\- Answers grounded in retrieved evidence, with policy filename and page citations where available.
+Create and activate a virtual environment:
 
-\- Customer-scoped database queries and parameterized SQL.
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+```
 
-\- Explicit handling of missing evidence and unsupported guarantees.
+Install dependencies:
 
-\- API credentials loaded from local environment configuration.
+```powershell
+python -m pip install -r requirements.txt
+```
 
+Create your local environment file:
 
+```powershell
+Copy-Item .env.example .env
+```
 
-\## Architecture
+Edit `.env` and enter the authorized API key and endpoint settings supplied for the hackathon. Never commit `.env` or share credentials.
 
+Ensure that `ridewise.db` and the approved policy files are available in their expected locations.
 
+Run the application:
 
-1\. \*\*Streamlit UI:\*\* Accepts the user's question and selected role.
+```powershell
+python -m streamlit run app.py
+```
 
-2\. \*\*Authorization and SQLite retrieval:\*\* Retrieves relevant structured records while applying customer-scoping controls.
+## Suggested test scenarios
 
-3\. \*\*Policy retrieval:\*\* Searches approved policy PDFs and verified text transcriptions of scanned annexures.
+- Start a Customer session using a valid customer ID.
+- Ask to view recent bookings and verify customer-scoped evidence.
+- Start a Support Agent session with no customer ID and ask an operational question.
+- Ask about cancellation rules and applicable policy versions.
+- Test late-return and low-battery penalty questions against policy evidence.
+- Ask a question whose answer is absent from the evidence.
+- Test requests for unsupported refund guarantees.
+- Start a new conversation and verify the previous chat is cleared.
+- Verify that invalid customer IDs are rejected.
 
-4\. \*\*NeoStats-hosted LLM:\*\* Generates a natural-language response using the retrieved evidence.
+## Privacy and evidence grounding
 
-5\. \*\*Evidence-based response:\*\* Communicates supported findings, policy citations, or limitations when evidence is insufficient.
+Database queries use parameterized SQL and customer-scoped retrieval for Customer sessions. The LLM is instructed to rely on supplied evidence, avoid inventing policy terms or amounts, and acknowledge missing information.
 
+Policy retrieval uses keyword-overlap ranking; it is not embedding-based vector search. Prompt instructions and evidence display reduce risk but do not guarantee that every answer is correct.
 
+## Limitations
 
-\## Requirements
+- Retrieval quality depends on question wording and available evidence.
+- Scanned-document transcriptions require verification against original documents.
+- Generated answers can contain errors and should be validated for consequential decisions.
+- Role selection and customer ID validation are a hackathon demonstration, not production-grade authentication. Support Agent permissions require further independent security testing.
+- The application is not established as a production-ready customer support system.
 
+## Data handling
 
-
-\- Python 3.11 recommended
-
-\- Access to the NeoStats hackathon LLM endpoint
-
-\- The supplied RideWise SQLite database and approved policy documents
-
-
-
-\## Local setup
-
-
-
-1\. Clone or obtain the project files.
-
-2\. Create and activate a Python virtual environment if needed.
-
-3\. Install the project's Python dependencies.
-
-4\. Copy `.env.example` to `.env`.
-
-5\. Configure the API key locally using the credentials supplied for the hackathon.
-
-6\. Start the application:
-
-
-
-&#x20;  `python -m streamlit run app.py`
-
-
-
-Do not commit `.env` or share its credentials.
-
-
-
-\## Configuration
-
-
-
-The `.env.example` file documents these settings:
-
-
-
-\- `NEOSTATS\_API\_KEY`: your private API key
-
-\- `NEOSTATS\_BASE\_URL`: NeoStats-compatible API endpoint
-
-\- `NEOSTATS\_MODEL`: configured model or deployment name
-
-
-
-Use the exact endpoint and model configuration provided for the hackathon.
-
-
-
-\## Suggested test scenarios
-
-
-
-\- Retrieve the status of a known booking.
-
-\- Retrieve payments for the selected customer.
-
-\- Ask about cancellation rules for a booking made after July 1, 2026.
-
-\- Test GOLD-tier late-return rules.
-
-\- Ask about the low-battery penalty.
-
-\- Request information not present in the evidence.
-
-\- Attempt to access another customer's records.
-
-\- Ask for an unsupported refund guarantee or private personal contact information.
-
-
-
-\## Privacy and evidence grounding
-
-
-
-Database queries use parameters and are scoped to the selected customer where applicable. Role selection alone must not be treated as authorization to expose unrestricted customer records. The application instructs the LLM to use retrieved evidence, avoid inventing policy terms or amounts, and acknowledge missing information.
-
-
-
-These controls reduce risk but do not guarantee that every generated answer will be correct. Validate access controls and evidence before using the application with real customer data.
-
-
-
-\## Limitations
-
-
-
-\- Responses depend on the completeness and relevance of retrieved records and policy passages.
-
-\- Scanned-document transcriptions must be checked against the original documents.
-
-\- LLM output may still contain errors and should be validated for consequential decisions.
-
-\- This hackathon prototype has not been established as a production-ready customer support system.
-
-
-
-\## Data handling
-
-
-
-Include the supplied database and policy documents in a shared submission only if permitted by the hackathon rules. Never commit API keys or other secrets.
+Do not commit API keys, passwords, customer data, or other secrets. Share the challenge database, policy documents, and organizer-provided materials only when the hackathon rules explicitly permit redistribution.
