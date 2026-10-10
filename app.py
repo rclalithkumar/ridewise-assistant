@@ -13,11 +13,6 @@ load_dotenv()
 APP_DIR = Path(__file__).resolve().parent
 DB_PATH = APP_DIR / "ridewise.db"
 POLICY_DIR = APP_DIR / "policies"
-
-# --------------------------------------------------
-# PAGE CONFIGURATION AND NEOSTATS THEME
-# --------------------------------------------------
-
 st.set_page_config(
     page_title="RideWise Intelligence | NeoStats",
     page_icon="🚗",
@@ -110,12 +105,6 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
-
-
-# --------------------------------------------------
-# DATABASE ACCESS
-# --------------------------------------------------
-
 def get_db():
     """Open the challenge database in read-only mode."""
     db_uri = (
@@ -284,12 +273,6 @@ def operational_evidence(question, role, customer_id):
         )
 
     return "\n".join(lines)
-
-
-# --------------------------------------------------
-# POLICY DOCUMENT RETRIEVAL
-# --------------------------------------------------
-
 def policy_evidence(question, limit=4):
     """Retrieve relevant passages from approved policy documents."""
 
@@ -410,12 +393,6 @@ def policy_evidence(question, limit=4):
         )
         for _, filename, page_num, page_text in ranked[:limit]
     )
-
-
-# --------------------------------------------------
-# NEOSTATS MODEL INTEGRATION
-# --------------------------------------------------
-
 def answer_question(question, role, customer_id):
     """Generate an answer grounded in database and policy evidence."""
 
@@ -530,12 +507,6 @@ USER QUESTION:
             sql_evidence,
             docs,
         )
-
-
-# --------------------------------------------------
-# AUTHENTICATION
-# --------------------------------------------------
-
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
 
@@ -626,13 +597,6 @@ if not st.session_state.authenticated:
 
     # Show no chat or evidence until a role is selected.
     st.stop()
-
-
-
-# --------------------------------------------------
-# AUTHENTICATED APPLICATION
-# --------------------------------------------------
-
 role = st.session_state.role
 customer_id = st.session_state.auth_customer_id
 
@@ -703,12 +667,6 @@ with st.sidebar:
     st.caption(
         "Evidence-first - Privacy-conscious - NeoStats"
     )
-
-
-# --------------------------------------------------
-# MAIN HEADER
-# --------------------------------------------------
-
 st.markdown(
     """
     <p style="color:#39FF88;
@@ -727,12 +685,6 @@ st.caption(
 )
 
 st.divider()
-
-
-# --------------------------------------------------
-# CHAT HISTORY
-# --------------------------------------------------
-
 for message in st.session_state.messages:
 
     with st.chat_message(message["role"]):
@@ -745,12 +697,6 @@ for message in st.session_state.messages:
         if message.get("docs"):
             with st.expander("Retrieved policy sources"):
                 st.text(message["docs"])
-
-
-# --------------------------------------------------
-# CHAT INPUT AND RESPONSE
-# --------------------------------------------------
-
 question = st.chat_input(
     "Ask about a booking, payment, refund, penalty, or policy..."
 )
