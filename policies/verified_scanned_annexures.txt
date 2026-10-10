@@ -1,0 +1,18 @@
+﻿[Source: 03_Cancellation_and_Refund_Policy_v2.pdf, page 2]
+Annexure 1: Approved refund schedule, Version 2.
+Applies to bookings made on or after 1 July 2026, 00:00 IST.
+Cancellation before scheduled pickup:
+48 hours or more: 100% refund of rental charge.
+12 hours or more, but less than 48 hours: 75%.
+2 hours or more, but less than 12 hours: 25%.
+Less than 2 hours: 0%.
+Cancelled by RideWise: 100% refund in all cases.
+No-show: no refund.
+The refund percentage applies to the rental charge paid; GST on the refunded amount is refunded proportionally.
+
+[Source: 04_Late_Return_and_Damage_Penalty_Schedule.pdf, page 3]
+Annexure A: Approved late-return grace periods.
+STANDARD: no grace period.
+SILVER: no grace period.
+GOLD: up to and including 30 minutes late incurs no late fee.
+GOLD return more than 30 minutes late: full lateness is charged from the first minute.
